@@ -733,7 +733,9 @@ void BoxSelectorUpdateSelection(ImNodesEditorContext& editor, ImRect box_rect)
 
 ImVec2 SnapOriginToGrid(ImVec2 origin)
 {
-    if (GImNodes->Style.Flags & ImNodesStyleFlags_GridSnapping)
+    if ((GImNodes->Style.Flags & ImNodesStyleFlags_GridSnapping) ||
+        ((GImNodes->Style.Flags & ImNodesStyleFlags_GridSnappingOnRelease) &&
+         GImNodes->LeftMouseReleased))
     {
         const float spacing = GImNodes->Style.GridSpacing;
         const float spacing2 = spacing / 2.0f;
@@ -748,7 +750,7 @@ ImVec2 SnapOriginToGrid(ImVec2 origin)
 
 void TranslateSelectedNodes(ImNodesEditorContext& editor)
 {
-    if (GImNodes->LeftMouseDragging)
+    if (GImNodes->LeftMouseDragging || GImNodes->LeftMouseReleased)
     {
         const ImVec2 origin = SnapOriginToGrid(GImNodes->MousePos - GImNodes->CanvasOriginScreenSpace - editor.Panning + editor.PrimaryNodeOffset);
         for (int i = 0; i < editor.SelectedNodeIndices.size(); ++i)

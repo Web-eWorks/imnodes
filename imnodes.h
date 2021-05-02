@@ -54,7 +54,8 @@ enum ImNodesStyleFlags_
     ImNodesStyleFlags_NodeOutline = 1 << 0,
     ImNodesStyleFlags_GridLines = 1 << 2,
     ImNodesStyleFlags_GridLinesPrimary = 1 << 3,
-    ImNodesStyleFlags_GridSnapping = 1 << 4
+    ImNodesStyleFlags_GridSnapping = 1 << 4,
+    ImNodesStyleFlags_GridSnappingOnRelease = 1 << 5
 };
 
 enum ImNodesPinShape_

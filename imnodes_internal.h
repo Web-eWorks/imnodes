@@ -56,6 +56,9 @@ enum ImNodesClickInteractionType_
     ImNodesClickInteractionType_LinkCreation,
     ImNodesClickInteractionType_Panning,
     ImNodesClickInteractionType_BoxSelection,
+    ImNodesClickInteractionType_MiniMapPanning,
+    ImNodesClickInteractionType_MiniMapZooming,
+    ImNodesClickInteractionType_MiniMapSnapping,
     ImNodesClickInteractionType_None
 };
 
@@ -64,6 +67,9 @@ enum ImNodesLinkCreationType_
     ImNodesLinkCreationType_Standard,
     ImNodesLinkCreationType_FromDetach
 };
+
+// Callback type used to specify special behavior when hovering a node in the minimap
+typedef void (*ImNodesMiniMapNodeHoveringCallback)(int, void*);
 
 // [SECTION] internal data structures
 
@@ -252,13 +258,14 @@ struct ImNodesEditorContext
     // Relative origins of selected nodes for snapping of dragged nodes
     ImVector<ImVec2> SelectedNodeOrigins;
     // Offset of the primary node origin relative to the mouse cursor.
-    ImVec2           PrimaryNodeOffset;
+    ImVec2 PrimaryNodeOffset;
 
     ImClickInteractionState ClickInteraction;
 
     ImNodesEditorContext()
-        : Nodes(), Pins(), Links(), Panning(100.f, 100.f), SelectedNodeIndices(), SelectedLinkIndices(),
-          SelectedNodeOrigins(), PrimaryNodeOffset(0.f, 0.f), ClickInteraction()
+        : Nodes(), Pins(), Links(), Panning(100.f, 100.f), SelectedNodeIndices(),
+          SelectedLinkIndices(), SelectedNodeOrigins(), PrimaryNodeOffset(0.f, 0.f),
+          ClickInteraction()
     {
     }
 };
@@ -278,6 +285,13 @@ struct ImNodesContext
     // Canvas extents
     ImVec2 CanvasOriginScreenSpace;
     ImRect CanvasRectScreenSpace;
+
+    // MiniMap state
+    ImRect                             MiniMapRectScreenSpace;
+    ImVec2                             MiniMapRectSnappingOffset;
+    float                              MiniMapZoom;
+    ImNodesMiniMapNodeHoveringCallback MiniMapNodeHoveringCallback;
+    void*                              MiniMapNodeHoveringCallbackUserData;
 
     // Debug helpers
     ImNodesScope CurrentScope;
@@ -318,12 +332,13 @@ struct ImNodesContext
 
     ImVec2 MousePos;
 
-    bool LeftMouseClicked;
-    bool LeftMouseReleased;
-    bool LeftMouseDragging;
-    bool AltMouseClicked;
-    bool AltMouseDragging;
-    bool MultipleSelectModifier;
+    bool  LeftMouseClicked;
+    bool  LeftMouseReleased;
+    bool  AltMouseClicked;
+    bool  LeftMouseDragging;
+    bool  AltMouseDragging;
+    float AltMouseScrollDelta;
+    bool  MultipleSelectModifier;
 };
 
 namespace ImNodes

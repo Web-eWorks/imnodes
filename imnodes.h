@@ -2,11 +2,12 @@
 
 #include <stddef.h>
 
-typedef int ImNodesCol;            // -> enum ImNodesCol_
-typedef int ImNodesStyleVar;       // -> enum ImNodesStyleVar_
-typedef int ImNodesStyleFlags;     // -> enum ImNodesStyleFlags_
-typedef int ImNodesPinShape;       // -> enum ImNodesPinShape_
-typedef int ImNodesAttributeFlags; // -> enum ImNodesAttributeFlags_
+typedef int ImNodesCol;             // -> enum ImNodesCol_
+typedef int ImNodesStyleVar;        // -> enum ImNodesStyleVar_
+typedef int ImNodesStyleFlags;      // -> enum ImNodesStyleFlags_
+typedef int ImNodesPinShape;        // -> enum ImNodesPinShape_
+typedef int ImNodesAttributeFlags;  // -> enum ImNodesAttributeFlags_
+typedef int ImNodesMiniMapLocation; // -> enum ImNodesMiniMapLocation_
 
 enum ImNodesCol_
 {
@@ -27,6 +28,16 @@ enum ImNodesCol_
     ImNodesCol_GridBackground,
     ImNodesCol_GridLine,
     ImNodesCol_GridLinePrimary,
+    ImNodesCol_MiniMapBackground,
+    ImNodesCol_MiniMapBackgroundHovered,
+    ImNodesCol_MiniMapOutline,
+    ImNodesCol_MiniMapOutlineHovered,
+    ImNodesCol_MiniMapNodeBackground,
+    ImNodesCol_MiniMapNodeBackgroundHovered,
+    ImNodesCol_MiniMapNodeBackgroundSelected,
+    ImNodesCol_MiniMapNodeOutline,
+    ImNodesCol_MiniMapLink,
+    ImNodesCol_MiniMapLinkSelected,
     ImNodesCol_COUNT
 };
 
@@ -54,7 +65,8 @@ enum ImNodesStyleFlags_
     ImNodesStyleFlags_NodeOutline = 1 << 0,
     ImNodesStyleFlags_GridLines = 1 << 2,
     ImNodesStyleFlags_GridLinesPrimary = 1 << 3,
-    ImNodesStyleFlags_GridSnapping = 1 << 4
+    ImNodesStyleFlags_GridSnapping = 1 << 4,
+    ImNodesStyleFlags_GridSnappingOnRelease = 1 << 5
 };
 
 enum ImNodesPinShape_
@@ -123,8 +135,8 @@ struct ImNodesIO
         //
         // ImNodes::GetIO().MultipleSelectModifier.Modifier = &ImGui::GetIO().KeyCtrl;
         //
-        // Left-clicking a node with this modifier pressed will add the node to the list of currently
-        // selected nodes. If this value is NULL, the Ctrl key will be used.
+        // Left-clicking a node with this modifier pressed will add the node to the list of
+        // currently selected nodes. If this value is NULL, the Ctrl key will be used.
         const bool* Modifier;
     } MultipleSelectModifier;
 
@@ -177,6 +189,14 @@ struct ImNodesStyle
     ImNodesStyle();
 };
 
+enum ImNodesMiniMapLocation_
+{
+    ImNodesMiniMapLocation_BottomLeft,
+    ImNodesMiniMapLocation_BottomRight,
+    ImNodesMiniMapLocation_TopLeft,
+    ImNodesMiniMapLocation_TopRight,
+};
+
 struct ImGuiContext;
 struct ImVec2;
 
@@ -188,6 +208,9 @@ struct ImNodesContext;
 // By default, the library creates an editor context behind the scenes, so using any of the imnodes
 // functions doesn't require you to explicitly create a context.
 struct ImNodesEditorContext;
+
+// Callback type used to specify special behavior when hovering a node in the minimap
+typedef void (*ImNodesMiniMapNodeHoveringCallback)(int, void*);
 
 namespace ImNodes
 {
@@ -220,6 +243,14 @@ void StyleColorsLight();
 // will result the node editor grid workspace being rendered.
 void BeginNodeEditor();
 void EndNodeEditor();
+
+// Add a navigable minimap to the editor; call before EndNodeEditor after all
+// nodes and links have been specified
+void MiniMap(
+    const float                              minimap_size_fraction = 0.2f,
+    const ImNodesMiniMapLocation             location = ImNodesMiniMapLocation_TopLeft,
+    const ImNodesMiniMapNodeHoveringCallback node_hovering_callback = NULL,
+    void*                                    node_hovering_callback_data = NULL);
 
 // Use PushColorStyle and PopColorStyle to modify ImNodesStyle::Colors mid-frame.
 void PushColorStyle(ImNodesCol item, unsigned int color);
